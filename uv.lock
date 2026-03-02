@@ -119,7 +119,6 @@ dependencies = [
     { name = "python-json-logger" },
     { name = "redis" },
     { name = "requests" },
-    { name = "setuptools" },
 ]
 
 [package.optional-dependencies]
@@ -158,7 +157,6 @@ requires-dist = [
     { name = "redis", specifier = ">=7.1.1" },
     { name = "requests", specifier = ">=2.32.0" },
     { name = "ruff", marker = "extra == 'dev'", specifier = ">=0.5.0" },
-    { name = "setuptools", specifier = ">=68.0" },
 ]
 provides-extras = ["dev"]
 
