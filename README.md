@@ -93,16 +93,16 @@ cd celery-playground
 git checkout section-0-baseline-environment
 
 # Follow the README in that branch
-cat README.md
+cat QUICKSTART.md
 
-# Install dependencies
-pip install -e .
+# Install dependencies (uses uv)
+uv sync --all-extras
 
 # Start Redis
 docker-compose up -d
 
 # Run your first Celery worker
-celery -A celery_playground worker --loglevel=info
+uv run celery -A celery_playground worker --loglevel=info
 ```
 
 ---
@@ -166,7 +166,7 @@ See [COURSE_GUIDE.md](./COURSE_GUIDE.md) for detailed instructions.
 
 ```bash
 # Start all services (Redis + Flower)
-docker-compose -f docker-compose.dev.yml up -d
+docker-compose up -d
 
 # View logs
 docker-compose logs -f
@@ -178,24 +178,20 @@ docker-compose down
 ### Local Development
 
 ```bash
-# Create virtual environment
-python -m venv .venv
-source .venv/bin/activate  # On Windows: .venv\Scripts\activate
-
-# Install dependencies
-pip install -e ".[dev]"
+# Install all dependencies (uv creates .venv automatically)
+uv sync --all-extras
 
 # Run migrations
-python manage.py migrate
+uv run python manage.py migrate
 
 # Start Redis (in separate terminal)
 docker-compose up redis
 
 # Start Celery worker (in separate terminal)
-celery -A celery_playground worker --loglevel=info
+uv run celery -A celery_playground worker --loglevel=info
 
 # Start Django dev server (in separate terminal)
-python manage.py runserver
+uv run python manage.py runserver
 ```
 
 ---

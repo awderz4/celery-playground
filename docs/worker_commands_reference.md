@@ -10,13 +10,13 @@ Complete reference for Celery worker command-line options and configurations.
 
 ```bash
 # Basic worker
-celery -A celery_playground worker --loglevel=info
+uv run celery -A celery_playground worker --loglevel=info
 
 # With custom hostname
-celery -A celery_playground worker --hostname=worker1@%h --loglevel=info
+uv run celery -A celery_playground worker --hostname=worker1@%h --loglevel=info
 
 # Background mode (daemon)
-celery -A celery_playground worker --detach --pidfile=/var/run/celery/worker.pid
+uv run celery -A celery_playground worker --detach --pidfile=/var/run/celery/worker.pid
 ```
 
 ### Worker Options
@@ -37,7 +37,7 @@ celery -A celery_playground worker --detach --pidfile=/var/run/celery/worker.pid
 ### Default Worker (CPU-bound, general purpose)
 
 ```bash
-celery -A celery_playground worker \
+uv run celery -A celery_playground worker \
   --loglevel=info \
   --concurrency=4 \
   --pool=prefork \
@@ -60,7 +60,7 @@ celery -A celery_playground worker \
 ### Notifications Worker (I/O-bound, high concurrency)
 
 ```bash
-celery -A celery_playground worker \
+uv run celery -A celery_playground worker \
   --loglevel=info \
   --concurrency=100 \
   --pool=gevent \
@@ -86,7 +86,7 @@ pip install gevent
 ### Media Worker (CPU-heavy, low concurrency)
 
 ```bash
-celery -A celery_playground worker \
+uv run celery -A celery_playground worker \
   --loglevel=info \
   --concurrency=2 \
   --pool=prefork \
@@ -109,7 +109,7 @@ celery -A celery_playground worker \
 ### Imports Worker (memory-heavy, single process)
 
 ```bash
-celery -A celery_playground worker \
+uv run celery -A celery_playground worker \
   --loglevel=info \
   --concurrency=1 \
   --pool=prefork \
@@ -132,7 +132,7 @@ celery -A celery_playground worker \
 ### Critical Worker (dedicated, monitored)
 
 ```bash
-celery -A celery_playground worker \
+uv run celery -A celery_playground worker \
   --loglevel=info \
   --concurrency=4 \
   -Q critical \
@@ -157,7 +157,7 @@ celery -A celery_playground worker \
 
 ```bash
 # With Django-Celery-Beat (database scheduler)
-celery -A celery_playground beat \
+uv run celery -A celery_playground beat \
   --scheduler django_celery_beat.schedulers:DatabaseScheduler \
   --max-interval 30 \
   --loglevel=info \
@@ -180,7 +180,7 @@ celery -A celery_playground beat \
 
 ```bash
 # Start Flower
-celery -A celery_playground flower \
+uv run celery -A celery_playground flower \
   --port=5555 \
   --basic-auth=admin:${FLOWER_PASSWORD} \
   --max-tasks=50000 \
@@ -188,7 +188,7 @@ celery -A celery_playground flower \
   --db=/var/lib/flower/flower.db
 
 # With authentication file
-celery -A celery_playground flower \
+uv run celery -A celery_playground flower \
   --port=5555 \
   --basic-auth=/etc/flower/users.txt
 ```
@@ -211,38 +211,38 @@ celery -A celery_playground flower \
 
 ```bash
 # List active tasks on all workers
-celery -A celery_playground inspect active
+uv run celery -A celery_playground inspect active
 
 # Specific worker
-celery -A celery_playground inspect active -d celery@worker1
+uv run celery -A celery_playground inspect active -d celery@worker1
 ```
 
 ### Reserved Tasks
 
 ```bash
 # Tasks pre-fetched but not yet started
-celery -A celery_playground inspect reserved
+uv run celery -A celery_playground inspect reserved
 ```
 
 ### Worker Statistics
 
 ```bash
 # Get worker stats (pool size, tasks completed, etc.)
-celery -A celery_playground inspect stats
+uv run celery -A celery_playground inspect stats
 ```
 
 ### Registered Tasks
 
 ```bash
 # List all registered tasks
-celery -A celery_playground inspect registered
+uv run celery -A celery_playground inspect registered
 ```
 
 ### Queue Lengths
 
 ```bash
 # Check how many tasks are in each queue
-celery -A celery_playground inspect active_queues
+uv run celery -A celery_playground inspect active_queues
 ```
 
 ---
@@ -253,47 +253,42 @@ celery -A celery_playground inspect active_queues
 
 ```bash
 # Graceful shutdown
-celery -A celery_playground control shutdown
+uv run celery -A celery_playground control shutdown
 
 # Specific worker
-celery -A celery_playground control shutdown -d celery@worker1
+uv run celery -A celery_playground control shutdown -d celery@worker1
 ```
 
 ### Change Rate Limit
 
 ```bash
 # Set rate limit on specific task (no restart needed!)
-celery -A celery_playground control rate_limit \
+uv run celery -A celery_playground control rate_limit \
   myapp.tasks.send_email \
   '10/m'
-
-# Different formats:
-# '10/s'  - 10 per second
-# '10/m'  - 10 per minute
-# '10/h'  - 10 per hour
 ```
 
 ### Cancel Consumer
 
 ```bash
 # Stop consuming from a queue
-celery -A celery_playground control cancel_consumer default
+uv run celery -A celery_playground control cancel_consumer default
 
 # Resume
-celery -A celery_playground control add_consumer default
+uv run celery -A celery_playground control add_consumer default
 ```
 
 ### Purge Queue
 
 ```bash
 # ⚠️ DANGER: Delete all tasks in all queues
-celery -A celery_playground purge
+uv run celery -A celery_playground purge
 
 # Specific queue
-celery -A celery_playground purge -Q imports
+uv run celery -A celery_playground purge -Q imports
 
 # With confirmation
-celery -A celery_playground purge -f  # force, no confirmation
+uv run celery -A celery_playground purge -f
 ```
 
 ---
@@ -303,25 +298,25 @@ celery -A celery_playground purge -f  # force, no confirmation
 ### Memory Management
 
 ```bash
-celery -A celery_playground worker \
-  --max-tasks-per-child=200 \          # Recycle after N tasks
-  --max-memory-per-child=400000 \      # Recycle if RSS > 400MB (in KB)
-  --prefetch-multiplier=1              # Rule #3
+uv run celery -A celery_playground worker \
+  --max-tasks-per-child=200 \
+  --max-memory-per-child=400000 \
+  --prefetch-multiplier=1
 ```
 
 ### Time Limits
 
 ```bash
-celery -A celery_playground worker \
-  --time-limit=300 \        # Hard kill after 5 min (SIGKILL)
-  --soft-time-limit=270     # Soft limit 4.5 min (raises exception)
+uv run celery -A celery_playground worker \
+  --time-limit=300 \
+  --soft-time-limit=270
 ```
 
 ### Autoscaling
 
 ```bash
 # Auto-scale between 2 and 10 workers
-celery -A celery_playground worker --autoscale=10,2
+uv run celery -A celery_playground worker --autoscale=10,2
 
 # Format: --autoscale=MAX,MIN
 ```
@@ -336,10 +331,10 @@ celery -A celery_playground worker --autoscale=10,2
 
 ```bash
 # Production (long-running tasks)
-celery -A celery_playground worker --prefetch-multiplier=1
+uv run celery -A celery_playground worker --prefetch-multiplier=1
 
 # High-throughput short tasks (advanced use only)
-celery -A celery_playground worker --prefetch-multiplier=4
+uv run celery -A celery_playground worker --prefetch-multiplier=4
 ```
 
 **⚠️ Default is 4 - causes invisible task starvation!**
@@ -348,19 +343,19 @@ celery -A celery_playground worker --prefetch-multiplier=4
 
 ```bash
 # Prefork (CPU-bound)
-celery -A celery_playground worker -P prefork -c 4
+uv run celery -A celery_playground worker -P prefork -c 4
 
 # Gevent (I/O-bound)
-celery -A celery_playground worker -P gevent -c 100
+uv run celery -A celery_playground worker -P gevent -c 100
 
 # Eventlet (I/O-bound, alternative to gevent)
-celery -A celery_playground worker -P eventlet -c 100
+uv run celery -A celery_playground worker -P eventlet -c 100
 
 # Threads (mixed workload)
-celery -A celery_playground worker -P threads -c 10
+uv run celery -A celery_playground worker -P threads -c 10
 
 # Solo (debugging only - single thread)
-celery -A celery_playground worker -P solo
+uv run celery -A celery_playground worker -P solo
 ```
 
 ---
@@ -371,27 +366,27 @@ celery -A celery_playground worker -P solo
 
 ```bash
 # Debug level logging
-celery -A celery_playground worker --loglevel=debug
+uv run celery -A celery_playground worker --loglevel=debug
 
 # With task arguments in logs
-celery -A celery_playground worker --loglevel=info -O fair
+uv run celery -A celery_playground worker --loglevel=info -O fair
 ```
 
 ### Single Task for Testing
 
 ```bash
 # Process only one task then exit
-celery -A celery_playground worker --pool=solo --loglevel=debug -c 1
+uv run celery -A celery_playground worker --pool=solo --loglevel=debug -c 1
 ```
 
 ### Trace All Events
 
 ```bash
 # Send task events for monitoring
-celery -A celery_playground worker -E  # or --task-events
+uv run celery -A celery_playground worker -E
 
 # In another terminal, watch events
-celery -A celery_playground events
+uv run celery -A celery_playground events
 ```
 
 ---
@@ -402,16 +397,16 @@ celery -A celery_playground events
 
 ```bash
 # Terminal 1: Critical queue worker
-celery -A celery_playground worker -Q critical -n critical@%h -c 2
+uv run celery -A celery_playground worker -Q critical -n critical@%h -c 2
 
 # Terminal 2: Default queue worker
-celery -A celery_playground worker -Q default -n default@%h -c 4
+uv run celery -A celery_playground worker -Q default -n default@%h -c 4
 
 # Terminal 3: Notifications (gevent)
-celery -A celery_playground worker -Q notifications -n notifications@%h -P gevent -c 100
+uv run celery -A celery_playground worker -Q notifications -n notifications@%h -P gevent -c 100
 
 # Terminal 4: Beat scheduler
-celery -A celery_playground beat -l info
+uv run celery -A celery_playground beat -l info
 ```
 
 ### Systemd Service Example
@@ -511,4 +506,3 @@ Before starting workers in production:
 ---
 
 **Pro Tip:** Save commonly-used worker commands as shell aliases or scripts for consistency across your team!
-

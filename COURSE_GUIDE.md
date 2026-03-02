@@ -51,6 +51,7 @@ cd celery-playground
 
 **Required:**
 - Python 3.13+
+- [uv](https://docs.astral.sh/uv/) — package manager (replaces pip/virtualenv)
 - Docker & Docker Compose
 - Git
 
@@ -65,10 +66,10 @@ cd celery-playground
 git checkout section-0-baseline-environment
 
 # Read the module README
-cat README.md
+cat QUICKSTART.md
 
-# Install dependencies
-pip install -e .
+# Install all dependencies (creates .venv automatically)
+uv sync --all-extras
 
 # Start infrastructure
 docker-compose up -d
@@ -150,13 +151,13 @@ Each module has validation tests:
 
 ```bash
 # Run tests for current module
-pytest tests/test_module_00*.py -v
+uv run pytest tests/test_module_00*.py -v
 
 # Run all tests (to ensure nothing broke)
-pytest
+uv run pytest
 
 # Run with coverage
-pytest --cov=celery_playground --cov=demo --cov=production_patterns
+uv run pytest --cov=celery_playground --cov=demo --cov=production_patterns
 ```
 
 **What tests validate:**
@@ -262,19 +263,19 @@ git checkout section-X-module-name --force
 
 ```bash
 # Verbose output
-pytest -v
+uv run pytest -v
 
 # Show print statements
-pytest -s
+uv run pytest -s
 
 # Stop on first failure
-pytest -x
+uv run pytest -x
 
 # Drop into debugger on failure
-pytest --pdb
+uv run pytest --pdb
 
 # Run specific test
-pytest tests/test_module_03_reliability.py::test_idempotency -v
+uv run pytest tests/test_module_03_reliability.py::test_idempotency -v
 ```
 
 ---
@@ -370,40 +371,40 @@ docker-compose down -v  # Removes volumes too
 
 ```bash
 # Start worker
-celery -A celery_playground worker --loglevel=info
+uv run celery -A celery_playground worker --loglevel=info
 
 # Start worker for specific queue
-celery -A celery_playground worker -Q critical --loglevel=info
+uv run celery -A celery_playground worker -Q critical --loglevel=info
 
 # Start Beat (scheduler)
-celery -A celery_playground beat --loglevel=info
+uv run celery -A celery_playground beat --loglevel=info
 
 # Start Flower (monitoring)
-celery -A celery_playground flower --port=5555
+uv run celery -A celery_playground flower --port=5555
 
 # Inspect workers
-celery -A celery_playground inspect active
-celery -A celery_playground inspect stats
-celery -A celery_playground inspect registered
+uv run celery -A celery_playground inspect active
+uv run celery -A celery_playground inspect stats
+uv run celery -A celery_playground inspect registered
 
 # Purge all tasks
-celery -A celery_playground purge
+uv run celery -A celery_playground purge
 ```
 
 ### Django Commands
 
 ```bash
 # Run migrations
-python manage.py migrate
+uv run python manage.py migrate
 
 # Create superuser (for admin)
-python manage.py createsuperuser
+uv run python manage.py createsuperuser
 
 # Django shell (test tasks manually)
-python manage.py shell
+uv run python manage.py shell
 
 # Run development server
-python manage.py runserver
+uv run python manage.py runserver
 ```
 
 ### Redis Commands
@@ -457,7 +458,7 @@ After completing all 12 modules and the production checklist:
 
 ```bash
 # Run the complete validation suite
-./scripts/validate_production_ready.sh
+uv run python scripts/validate_golden_rules.py
 
 # If all checks pass, you're production-ready! 🎉
 ```

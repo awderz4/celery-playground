@@ -17,12 +17,14 @@ git checkout section-0-baseline-environment
 
 ### Step 2: Install Dependencies
 
-```bash
-# Install Python packages
-pip install -e ".[dev]"
+This project uses [uv](https://docs.astral.sh/uv/) for dependency management.
 
-# Or if using uv (faster)
-uv pip install -e ".[dev]"
+```bash
+# Install all dependencies (creates/updates .venv automatically)
+uv sync --all-extras
+
+# Verify install
+uv pip list | grep celery
 ```
 
 ### Step 3: Start Infrastructure
@@ -46,7 +48,7 @@ celery-playground-redis        running (healthy)
 
 ```bash
 # Run the Golden Rules validation script
-python scripts/validate_golden_rules.py
+uv run python scripts/validate_golden_rules.py
 ```
 
 Expected output: All ✅ (green checkmarks)
@@ -55,7 +57,7 @@ Expected output: All ✅ (green checkmarks)
 
 ```bash
 # Run Module 0 test suite
-pytest tests/test_module_00_baseline.py -v
+uv run pytest tests/test_module_00_baseline.py -v
 ```
 
 Expected: 5 tests PASSED
@@ -64,7 +66,7 @@ Expected: 5 tests PASSED
 
 ```bash
 # In a new terminal
-celery -A celery_playground worker --loglevel=info
+uv run celery -A celery_playground worker --loglevel=info
 ```
 
 Look for: `celery@hostname ready.`
@@ -73,7 +75,7 @@ Look for: `celery@hostname ready.`
 
 ```bash
 # In another terminal
-python manage.py shell
+uv run python manage.py shell
 ```
 
 In the Python shell:
@@ -118,13 +120,10 @@ docker-compose ps  # Verify it's healthy
 **Fix:**
 ```bash
 # Reinstall dependencies
-pip install -e ".[dev]"
-
-# Ensure PYTHONPATH includes current directory
-export PYTHONPATH=.
+uv sync --all-extras
 
 # Try again
-celery -A celery_playground worker --loglevel=info
+uv run celery -A celery_playground worker --loglevel=info
 ```
 
 ### Tests Fail
@@ -133,8 +132,8 @@ celery -A celery_playground worker --loglevel=info
 
 **Fix:**
 ```bash
-pip install -e ".[dev]"
-pytest tests/test_module_00_baseline.py -v
+uv sync --all-extras
+uv run pytest tests/test_module_00_baseline.py -v
 ```
 
 ---
