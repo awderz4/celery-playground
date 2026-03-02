@@ -118,12 +118,54 @@ USE_TZ = True
 
 STATIC_URL = 'static/'
 
-# Celery configuration
+# Default primary key field type
+# https://docs.djangoproject.com/en/6.0/ref/settings/#default-auto-field
+
+DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
+
+# ═══════════════════════════════════════════════════════════════════════
+# CELERY CONFIGURATION - Production Ready
+# ═══════════════════════════════════════════════════════════════════════
+
+# Broker & Backend
 CELERY_BROKER_URL = "redis://localhost:6380/0"
 CELERY_RESULT_BACKEND = "redis://localhost:6380/1"
 
-CELERY_ACCEPT_CONTENT = ["json"]
+# Serialization Security (Golden Rule #7)
+# NEVER use pickle - it's a critical RCE vulnerability
 CELERY_TASK_SERIALIZER = "json"
 CELERY_RESULT_SERIALIZER = "json"
+CELERY_ACCEPT_CONTENT = ["json"]
 
+# Timezone
 CELERY_TIMEZONE = "UTC"
+CELERY_ENABLE_UTC = True
+
+# Task Reliability (Golden Rules #2)
+CELERY_TASK_ACKS_LATE = True  # ACK only after successful execution
+CELERY_TASK_REJECT_ON_WORKER_LOST = True  # Re-queue on SIGKILL
+CELERY_TASK_TRACK_STARTED = True  # Enable STARTED state
+
+# Worker Performance (Golden Rule #3)
+CELERYD_PREFETCH_MULTIPLIER = 1  # Critical: prevents invisible task starvation
+
+# Result TTL - prevent memory leak
+CELERY_RESULT_EXPIRES = 3600  # 1 hour
+
+# Redis Transport Options (Golden Rule #4)
+CELERY_BROKER_TRANSPORT_OPTIONS = {
+    'visibility_timeout': 86400,  # 24 hours - must be > longest task
+    'max_connections': 20,
+    'socket_connect_timeout': 5,
+    'socket_timeout': 10,
+    'retry_on_timeout': True,
+}
+
+# Task Time Limits (Golden Rule #6)
+# Set per-task in production; these are defaults
+CELERYD_TASK_SOFT_TIME_LIMIT = 300  # 5 min - raises exception
+CELERYD_TASK_TIME_LIMIT = 360  # 6 min - SIGKILL
+
+# Worker Recycling - prevent memory leaks
+CELERYD_MAX_TASKS_PER_CHILD = 200  # Recycle worker after N tasks
+CELERYD_MAX_MEMORY_PER_CHILD = 400000  # 400MB hard limit (in KB)
