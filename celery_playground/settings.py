@@ -169,3 +169,13 @@ CELERYD_TASK_TIME_LIMIT = 360  # 6 min - SIGKILL
 # Worker Recycling - prevent memory leaks
 CELERYD_MAX_TASKS_PER_CHILD = 200  # Recycle worker after N tasks
 CELERYD_MAX_MEMORY_PER_CHILD = 400000  # 400MB hard limit (in KB)
+
+# ═══ CELERY-ONCE (idempotency / distributed lock) ══════════════════
+ONCE = {
+    'backend': 'celery_once.backends.Redis',
+    'settings': {
+        'default_timeout': 3600,  # 1 hour lock timeout
+        'url': CELERY_BROKER_URL,
+    },
+}
+
