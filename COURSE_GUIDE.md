@@ -410,13 +410,13 @@ uv run python manage.py runserver
 ### Redis Commands
 
 ```bash
-# Connect to Redis CLI
-docker-compose exec redis redis-cli
+# Connect to Redis CLI (no host redis-cli needed — use docker exec)
+docker exec -it celery-playground-redis redis-cli
 
 # In Redis CLI:
 KEYS celery*           # List all Celery keys
-LLEN default           # Check queue length
-MONITOR                # Watch all Redis commands
+LLEN default           # Check queue length (key is 'default', not 'celery')
+MONITOR                # Watch all Redis commands in real-time
 FLUSHALL               # Clear everything (careful!)
 ```
 

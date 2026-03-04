@@ -198,11 +198,11 @@ print(f"Result: {result.get(timeout=35)}")
 <summary>Hint 3: How to check Redis</summary>
 
 ```bash
-docker-compose exec redis redis-cli
+docker exec -it celery-playground-redis redis-cli
 
 # In Redis CLI:
 KEYS celery*
-LLEN celery  # Check queue length
+LLEN default  # Check queue length (queue key is 'default', not 'celery')
 GET celery-task-meta-<task-id>  # Check result (use your task ID)
 ```
 </details>
@@ -236,7 +236,7 @@ print(f"Result: {final_result}")  # Should print 30
 
 **Terminal 3 - Monitor Redis:**
 ```bash
-docker-compose exec redis redis-cli
+docker exec -it celery-playground-redis redis-cli
 
 # Watch commands in real-time
 MONITOR

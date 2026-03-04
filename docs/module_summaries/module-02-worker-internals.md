@@ -149,7 +149,7 @@ uv run python scripts/kill_worker.py --delay 15
 
 **Count survivors in Redis:**
 ```bash
-redis-cli -p 6380 LLEN celery
+docker exec celery-playground-redis redis-cli LLEN default
 # With prefetch=4: only ~4-5 tasks visible (2-4 were pre-fetched and lost)
 ```
 
@@ -160,7 +160,7 @@ uv run celery -A celery_playground worker -Q default \
 
 uv run python scripts/submit_tasks.py 2.1
 uv run python scripts/kill_worker.py --delay 15
-redis-cli -p 6380 LLEN celery
+docker exec celery-playground-redis redis-cli LLEN default
 # With prefetch=1 + acks_late: all 7 tasks re-appear in queue
 ```
 
@@ -180,7 +180,7 @@ uv run python scripts/submit_tasks.py 2.2
 uv run python scripts/kill_worker.py
 
 # Check Redis — only acks_late tasks survive
-redis-cli -p 6380 LLEN celery
+docker exec celery-playground-redis redis-cli LLEN default
 ```
 
 ---

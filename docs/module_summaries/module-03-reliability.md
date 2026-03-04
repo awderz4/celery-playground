@@ -131,7 +131,7 @@ uv run python scripts/submit_tasks.py 3.2
 
 # Then submit 20 tasks WITH jitter — retries spread across window
 # Compare Redis MONITOR output — see the difference in timing
-redis-cli -p 6380 MONITOR
+docker exec -it celery-playground-redis redis-cli MONITOR
 ```
 
 ### Lab 3c — Duplicate Prevention

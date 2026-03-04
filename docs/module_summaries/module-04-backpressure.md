@@ -82,7 +82,7 @@ Redis key: celery:dead-letter  (LPUSH, capped at 10,000 entries)
 
 ### Inspect
 ```bash
-redis-cli -p 6380 LRANGE celery:dead-letter 0 -1
+docker exec celery-playground-redis redis-cli LRANGE celery:dead-letter 0 -1
 ```
 
 ### Inspect & Replay
@@ -128,7 +128,7 @@ uv run python scripts/replay_dead_letter.py
 uv run python scripts/submit_tasks.py 4.3
 
 # Watch queue depth
-redis-cli -p 6380 LLEN celery
+docker exec celery-playground-redis redis-cli LLEN default
 # Circuit breaker activates at depth > 1000 (expires) and > 5000 (drop)
 ```
 

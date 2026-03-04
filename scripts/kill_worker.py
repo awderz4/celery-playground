@@ -105,8 +105,8 @@ def kill_worker(delay: int = 0, dry_run: bool = False, signal_name: str = "SIGKI
             print(f"  Permission denied for PID {pid} — try sudo")
 
     print(f"\nDone. Check Redis to see if tasks were re-queued:")
-    print("  redis-cli -p 6380 LLEN celery")
-    print("  redis-cli -p 6380 LRANGE celery 0 10")
+    print("  docker exec celery-playground-redis redis-cli LLEN default")
+    print("  docker exec celery-playground-redis redis-cli LRANGE default 0 10")
 
 
 def main():

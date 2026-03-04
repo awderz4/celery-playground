@@ -147,7 +147,7 @@ CELERY_ENABLE_UTC = True
 # Task Reliability (Golden Rules #2)
 CELERY_TASK_ACKS_LATE = True  # ACK only after successful execution
 CELERY_TASK_REJECT_ON_WORKER_LOST = True  # Re-queue on SIGKILL
-CELERY_TASK_TRACK_STARTED = True  # Enable STARTED state
+CELERY_TASK_TRACK_STARTED = False  # Enable STARTED state
 
 # Worker Performance (Golden Rule #3)
 CELERYD_PREFETCH_MULTIPLIER = 1  # Critical: prevents invisible task starvation

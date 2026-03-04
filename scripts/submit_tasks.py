@@ -66,6 +66,7 @@ import os
 import sys
 import time
 
+
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 os.environ.setdefault("DJANGO_SETTINGS_MODULE", "celery_playground.settings")
 
@@ -114,7 +115,6 @@ def separator(title):
 # ─────────────────────────────────────────────────────────────────────────────
 # MODULE 1
 # ─────────────────────────────────────────────────────────────────────────────
-
 def lab_1_1():
     separator("Lab 1.1 — State Transitions")
     print("Submitting task_with_states (duration=8s)…")
@@ -195,7 +195,7 @@ def lab_2_1():
         print(f"  slow_task #{i}  id={r.id}")
     print("\n  → With prefetch=4: tasks 2–4 are invisible to queue")
     print("  → Kill worker:  uv run python scripts/kill_worker.py --delay 15")
-    print("  → redis-cli -p 6380 LLEN celery  (count surviving tasks)")
+    print("  → docker exec celery-playground-redis redis-cli LLEN default  (count survivors)")
     print()
     print("STEP 2 — repeat with prefetch=1:")
     print("  uv run celery -A celery_playground worker -Q default \\")
@@ -212,7 +212,7 @@ def lab_2_2():
         print(f"  acks_LATE  #{i}  id={r.id}  ← will be RE-QUEUED on kill")
     print()
     print("Kill worker:  uv run python scripts/kill_worker.py")
-    print("Check queue: redis-cli -p 6380 LLEN celery")
+    print("Check queue: docker exec celery-playground-redis redis-cli LLEN default")
     print("  → Expect 2 tasks (acks_late only, the acks_early ones are gone)")
 
 
@@ -339,7 +339,7 @@ def lab_4_3():
             print(f"  ⚡ CIRCUIT BREAKER at #{i}: {e}")
             break
     print(f"\n  Enqueued {count} tasks before circuit breaker (or all 50 if queue was shallow)")
-    print("  → redis-cli -p 6380 LLEN celery  (check queue depth)")
+    print("  → docker exec celery-playground-redis redis-cli LLEN default  (check queue depth)")
 
 
 LABS4 = {"4.1": lab_4_1, "4.2": lab_4_2, "4.3": lab_4_3}
@@ -387,7 +387,7 @@ def lab_5_2():
             print(f"  Submitted {i}/500…")
     print("\n✅ 500 tasks submitted to notifications queue")
     print("  → kubectl get pods -l queue=notifications -w  (watch scale-up)")
-    print("  → redis-cli -p 6380 LLEN notifications  (queue depth)")
+    print("  → docker exec celery-playground-redis redis-cli LLEN notifications  (queue depth)")
 
 
 LABS5 = {"5.1": lab_5_1, "5.2": lab_5_2}
