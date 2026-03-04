@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-worker-media
+  labels:
+    app: celery
+    queue: media
+spec:
+  replicas: 1
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: celery
+      queue: media
+  template:
+    metadata:
+      labels:
+        app: celery
+        queue: media
+    spec:
+      terminationGracePeriodSeconds: 1800   # video encode can take 30 min
+      containers:
+        - name: worker
+          image: myapp:latest
+          command:
+            - celery
+            - "-A"
+            - celery_playground
+            - worker
+            - "--loglevel=info"
+            - "--concurrency=2"
+            - "--pool=prefork"
+            - "--prefetch-multiplier=1"
+            - "--max-tasks-per-child=50"
+            - "--max-memory-per-child=800000"
+            - "-Q"
+            - media
+            - "--hostname=worker-media@%h"
+          resources:
+            requests:
+              memory: "1Gi"
+              cpu: "1000m"
+            limits:
+              memory: "2Gi"
+              cpu: "4000m"
+          envFrom:
+            - configMapRef:
+                name: celery-config
+            - secretRef:
+                name: celery-secrets
+

@@ -1,0 +1,55 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-worker-notifications
+  labels:
+    app: celery
+    queue: notifications
+  annotations:
+    deployment.kubernetes.io/note: "gevent pool, high concurrency, I/O-bound"
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: celery
+      queue: notifications
+  template:
+    metadata:
+      labels:
+        app: celery
+        queue: notifications
+    spec:
+      terminationGracePeriodSeconds: 120   # notifications are short-lived
+      containers:
+        - name: worker
+          image: myapp:latest
+          command:
+            - celery
+            - "-A"
+            - celery_playground
+            - worker
+            - "--loglevel=info"
+            - "--concurrency=100"
+            - "--pool=gevent"
+            - "--prefetch-multiplier=1"
+            - "-Q"
+            - notifications
+            - "--hostname=worker-notifications@%h"
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "1000m"
+          envFrom:
+            - configMapRef:
+                name: celery-config
+            - secretRef:
+                name: celery-secrets
+

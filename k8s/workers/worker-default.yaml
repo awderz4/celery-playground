@@ -1,0 +1,70 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: celery-worker-default
+  labels:
+    app: celery
+    queue: default
+  annotations:
+    deployment.kubernetes.io/note: "prefetch-multiplier=1, acks_late=True"
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxUnavailable: 0   # never reduce capacity during update
+      maxSurge: 1
+  selector:
+    matchLabels:
+      app: celery
+      queue: default
+  template:
+    metadata:
+      labels:
+        app: celery
+        queue: default
+      annotations:
+        prometheus.io/scrape: "true"
+        prometheus.io/port: "8888"
+    spec:
+      terminationGracePeriodSeconds: 600   # Rule #10: > max task duration
+      containers:
+        - name: worker
+          image: myapp:latest
+          command:
+            - celery
+            - "-A"
+            - celery_playground
+            - worker
+            - "--loglevel=info"
+            - "--concurrency=4"
+            - "--pool=prefork"
+            - "--prefetch-multiplier=1"
+            - "--max-tasks-per-child=200"
+            - "--max-memory-per-child=400000"
+            - "-Q"
+            - default
+            - "--hostname=worker-default@%h"
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "2000m"
+          livenessProbe:
+            exec:
+              command:
+                - /bin/sh
+                - -c
+                - "celery -A celery_playground inspect ping -d celery@$HOSTNAME --timeout 5"
+            initialDelaySeconds: 30
+            periodSeconds: 60
+            timeoutSeconds: 10
+            failureThreshold: 3
+          envFrom:
+            - configMapRef:
+                name: celery-config
+            - secretRef:
+                name: celery-secrets
+

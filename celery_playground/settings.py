@@ -38,6 +38,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'demo',
+    'django_celery_beat',
+    'django_celery_results',
+    'production_patterns',
 ]
 
 MIDDLEWARE = [
@@ -174,8 +177,44 @@ CELERYD_MAX_MEMORY_PER_CHILD = 400000  # 400MB hard limit (in KB)
 ONCE = {
     'backend': 'celery_once.backends.Redis',
     'settings': {
-        'default_timeout': 3600,  # 1 hour lock timeout
+        'default_timeout': 3600,
         'url': CELERY_BROKER_URL,
     },
 }
 
+# ═══ QUEUE ROUTING (Module 5) ═══════════════════════════════════════
+from kombu import Queue, Exchange
+
+CELERY_TASK_QUEUES = (
+    Queue('critical',      Exchange('direct'), routing_key='critical'),
+    Queue('notifications', Exchange('direct'), routing_key='notifications'),
+    Queue('default',       Exchange('direct'), routing_key='default'),
+    Queue('media',         Exchange('direct'), routing_key='media'),
+    Queue('imports',       Exchange('direct'), routing_key='imports'),
+)
+
+CELERY_TASK_DEFAULT_QUEUE = 'default'
+
+CELERY_TASK_ROUTES = {
+    'demo.charge_payment':           {'queue': 'critical'},
+    'demo.revoke_auth_token':        {'queue': 'critical'},
+    'demo.send_email_notification':  {'queue': 'notifications'},
+    'demo.send_sms':                 {'queue': 'notifications'},
+    'demo.send_push_notification':   {'queue': 'notifications'},
+    'demo.send_bulk_email':          {'queue': 'notifications'},
+    'demo.resize_image':             {'queue': 'media'},
+    'demo.transcode_video':          {'queue': 'media'},
+    'demo.import_csv':               {'queue': 'imports'},
+    'demo.bulk_user_create':         {'queue': 'imports'},
+}
+
+# ═══ TASK RATE LIMITS (Module 4) ════════════════════════════════════
+CELERY_TASK_ANNOTATIONS = {
+    'demo.send_sms':        {'rate_limit': '10/m'},
+    'demo.send_bulk_email': {'rate_limit': '100/m'},
+    'demo.charge_payment':  {'rate_limit': '5/m'},
+}
+
+# ═══ BEAT SCHEDULER (Module 7) ══════════════════════════════════════
+CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
+CELERY_BEAT_MAX_LOOP_INTERVAL = 30  # Check DB every 30s

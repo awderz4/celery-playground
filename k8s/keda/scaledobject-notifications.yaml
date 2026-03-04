@@ -1,0 +1,22 @@
+apiVersion: keda.sh/v1alpha1
+kind: ScaledObject
+metadata:
+  name: celery-worker-notifications
+  namespace: production
+  annotations:
+    deployment.kubernetes.io/note: "Scale on Redis list depth for notifications queue"
+spec:
+  scaleTargetRef:
+    name: celery-worker-notifications
+  minReplicaCount: 2
+  maxReplicaCount: 20
+  cooldownPeriod: 60            # seconds before scale-down after queue clears
+  pollingInterval: 15           # check queue depth every 15s
+  triggers:
+    - type: redis
+      metadata:
+        address: redis:6379
+        listName: notifications
+        listLength: "10"        # scale up when > 10 tasks per replica
+        databaseIndex: "0"
+
