@@ -16,5 +16,26 @@ app.conf.update(
     worker_prefetch_multiplier=1,  # Golden Rule #3: No pre-fetching
 )
 
-# Auto-discover tasks in all installed apps
-app.autodiscover_tasks()
+# Auto-discover tasks in all installed apps.
+# autodiscover_tasks() only finds files literally named "tasks.py".
+# We pass related_name patterns so every tasks_module_NN.py is also loaded.
+app.autodiscover_tasks(
+    packages=[
+        "demo",
+        "production_patterns",
+    ],
+    related_name="tasks",          # finds demo/tasks.py
+)
+
+# Force-import every additional task module so the worker registers them.
+# These files are named tasks_module_NN.py — not picked up by autodiscover.
+from demo import (  # noqa: F401, E402
+    tasks_module_02,
+    tasks_module_03,
+    tasks_module_04,
+    tasks_module_05,
+    tasks_module_06,
+    tasks_module_07,
+    tasks_module_08,
+    tasks_module_11,
+)

@@ -72,7 +72,7 @@ uv run celery -A celery_playground worker -Q default \
 uv run python scripts/submit_tasks.py 6.1
 
 # Check RSS
-watch -n1 'ps aux | grep celery | grep -v grep | awk "{print \$6}"'
+watch -n1 'ps aux | grep "[c]elery worker" | awk "{print \$6, \"KB\"}"'
 ```
 
 ### Lab 6b — max_tasks_per_child Fix
