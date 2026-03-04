@@ -51,6 +51,7 @@ class TestTraceableTasks:
         assert traceable_task.soft_time_limit is not None
         assert traceable_task.time_limit is not None
 
+
     def test_traced_csv_task_executes(self):
         from demo.tasks_module_08 import traced_csv_task
         r = traced_csv_task.apply(kwargs={"file_id": 1, "row_count": 10})
